@@ -1,9 +1,5 @@
 #!/bin/bash
 # Check parameters
-IFS=" "
-echo _$3_
-echo $#
-exit 0
 if [ $# -lt 3 ]; then
 	echo "Error: paramters problem"
 	exit 1
