@@ -8,5 +8,10 @@ fi
 
 database="$1"
 if [ -e "$database" ]; then
-	echo "Error: DB${database} already exists"
+	echo "Error: DB already exists"
+	exit 2
+else
+	mkdir "$database"
+	echo "OK: database created"
+	exit 0
 fi
