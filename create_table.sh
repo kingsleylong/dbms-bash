@@ -2,7 +2,10 @@
 
 # Check parameters
 if [ $# -lt 3 ]; then
-	echo "Error: paramters problem"
+	echo "Error: parameters problem"
+	exit 1
+elif [ $# -gt 3 ]; then
+	echo "Error: too many parameters"
 	exit 1
 fi
 
