@@ -10,11 +10,14 @@ elif [ $# -gt 1 ]; then
 fi
 
 database="$1"
+./P.sh $database
 if [ -e "$database" ]; then
 	echo "Error: DB already exists"
+	./V.sh $database
 	exit 2
 else
 	mkdir "$database"
 	echo "OK: database created"
+	./V.sh $database
 	exit 0
 fi
