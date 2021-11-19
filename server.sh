@@ -10,16 +10,16 @@ while true; do
 	unset 'command_arr[0]'
 	case "${req_command}" in
 		create_database)
-			./create_database.sh "${command_arr[@]}"
+			./create_database.sh "${command_arr[@]}" &
 			;;
 		create_table)
-			./create_table.sh "${command_arr[@]}"
+			./create_table.sh "${command_arr[@]}" &
 			;;
 		insert)
-			./insert.sh "${command_arr[@]}"
+			./insert.sh "${command_arr[@]}" &
 			;; 
 		select)
-			./select.sh "${command_arr[@]}"
+			./select.sh "${command_arr[@]}" &
 			;; 
 		shutdown)
 			echo "Good bye."

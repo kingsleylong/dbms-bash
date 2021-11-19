@@ -8,26 +8,30 @@ elif [ $# -gt 3 ]; then
         exit 1
 fi
 
-# Check if database exists
+base=$(pwd)
 database="$1"
+
+# try to increment semaphore
+./P.sh $database
+# got semaphore, enter critical section
+# Check if database exists
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
+	./V.sh $database
 	exit 2
 fi
 
-# Go to database
-cd "$database"
-
 # Check if table exists
 table="$2"
-if [ ! -e "$table" ]; then
+if [ ! -e "$database/$table" ]; then
 	echo "Error: table does not exist"
+	./V.sh $database
 	exit 3
 fi
 
 # Check if columns are provided, if empty then replace with all columns (the fields used in cut command)
 columns="$3"
-schema=$(head -n 1 "$table")
+schema=$(head -n 1 "$database/$table")
 if [ -z "$columns" ]; then
 	columns="1-"
 else
@@ -38,11 +42,14 @@ else
 		col_check=$(echo "$schema" | cut -d',' -f$col 2> /dev/null | wc -w)
 		if [ $(( col_check )) -eq 0 ]; then
 			echo "Error: column does not exist"
+			./V.sh $database
 			exit 4
 		fi
 	done
 fi
 
 echo "start_result"
-cut -d',' -f"$columns" "$table"
+cut -d',' -f"$columns" "$database/$table"
 echo "end_result"
+./V.sh $database
+exit 0
