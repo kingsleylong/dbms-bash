@@ -8,17 +8,12 @@ elif [ $# -gt 1 ]; then
 	exit 1
 fi
 
-server_pipe="server.pipe"
-if [ ! -e "$server_pipe" ]; then
-	echo "Error: server is not running."
-	exit 2
-fi 
-
 client_id=$1
 client_pipe="${client_id}.pipe"
 if [ ! -e $client_pipe ]; then
 	mkfifo $client_pipe
 fi
+server_pipe="server.pipe"
 while true; do
 	# read command into an array
 	read -a command_arr
@@ -72,18 +67,40 @@ while true; do
 			exit 1
 	esac
 	message="${req_command} $client_id ${command_arr[@]}"
-#	echo "[SEND]$message"
+	echo "[SEND]$message"
 	echo $message > $server_pipe
-#	echo "[SENT]$message"
+	echo "[SENT]$message"
+	start_flag=false
+	sleep 1
+	read response < $client_pipe
+	if [ "$response" = "start_result" ]; then
 
-	# Read response from server pipe
-	while read response; do
-		echo "$response";
-		if [ "$response" = "OK: Good bye." ]; then
-			rm $client_pipe
-			exit 0
+	while true; do
+		echo "[DEBUG] into while loop.... start_flag=$start_flag, read from $client_pipe"
+		read response < $client_pipe
+		echo "[RESPONSE]:$response"
+		#if [ "$response" = "start_result" ]; then
+		#	start_flag=true	
+		#	continue
+		#el
+		if [ "$response" = "end_result" ]; then
+		#	start_flag=false
+			echo "[DEBUG] end of result, break now"
+			break
 		fi
-	done < $client_pipe
 
-#	echo "[DEBUG] end outer loop!!!"
+		echo $response
+		#echo "[DEBUG] start_flag=$start_flag"
+		# if not select response, then finish reading
+		#if [ ! $start_flag ]; then
+		#	echo "[DEBUG] normal response, break now"
+		#	break
+		#fi
+	done
+
+	else
+		echo $response
+	fi
+	
+	echo "[DEBUG] end outer loop!!!"
 done

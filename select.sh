@@ -48,8 +48,9 @@ else
 	done
 fi
 
-echo "start_result"
+echo 'start_result'
 cut -d',' -f"$columns" "$database/$table"
-echo "end_result"
+echo 'end_result'
+echo $(date)': Finish select'"$database/$table\n" >> select.log
 ./V.sh $database
 exit 0
