@@ -1,4 +1,23 @@
 #!/bin/bash
+
+cleanup() {
+	if [ -e $client_pipe ]; then
+                rm $client_pipe
+	fi
+}
+
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+
+function ctrl_c() {
+	if [ -e $client_pipe ]; then
+		cleanup
+		exit 0
+	else
+		exit 99
+	fi
+}
+
 # Check parameters
 if [ $# -eq 0 ]; then
 	echo "Error: no paramter"
@@ -67,8 +86,13 @@ while true; do
 		shutdown)
 			# everything is fine
 			;;
+		exit)
+			cleanup
+			exit 0
+			;;
 	 	*)
 			echo "Error: bad request"
+			cleanup
 			exit 1
 	esac
 	message="${req_command} $client_id ${command_arr[@]}"
@@ -79,11 +103,13 @@ while true; do
 	# Read response from server pipe
 	while read response; do
 		echo "$response";
-		if [ "$response" = "OK: Good bye." ]; then
-			rm $client_pipe
+		if [ "$response" = "OK: shutting down server.." ]; then
+			cleanup
+			echo "Exit now."
 			exit 0
 		fi
 	done < $client_pipe
 
 #	echo "[DEBUG] end outer loop!!!"
 done
+

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+cleanup() {
+	if [ ! -e $server_pipe ]; then
+  	      rm $server_pipe
+	fi
+}
 server_pipe="server.pipe"
 if [ ! -e $server_pipe ]; then
 	mkfifo $server_pipe
@@ -35,12 +40,13 @@ while true; do
 		shutdown)
 			#echo "[DEBUG] Say good by to $client_pipe"
 			# delete server pipe before shutdown
-			rm $server_pipe
-			echo "OK: Good bye." > $client_pipe
+			echo "OK: shutting down server.." > $client_pipe
+			cleanup
 			exit 0
 			;;
 	 	*)
 			echo "Error: bad request" > $client_pipe
+			cleanup
 			exit 1
 	esac
 done
