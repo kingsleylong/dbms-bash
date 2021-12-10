@@ -37,6 +37,9 @@ client_id=$1
 client_pipe="${client_id}.pipe"
 if [ ! -e $client_pipe ]; then
 	mkfifo $client_pipe
+else
+	echo "Error: client with id ${client_id} is already running."
+	exit 3
 fi
 while true; do
 	# read command into an array
