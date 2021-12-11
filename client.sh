@@ -6,6 +6,14 @@ cleanup() {
 	fi
 }
 
+checkserver() {
+	if [ ! -e "$server_pipe" ]; then
+  	        echo "Error: server is not running."
+        	exit 2
+	fi
+}
+
+# gracefully exit client
 # trap ctrl-c and call ctrl_c()
 trap ctrl_c INT
 
@@ -28,10 +36,7 @@ elif [ $# -gt 1 ]; then
 fi
 
 server_pipe="server.pipe"
-if [ ! -e "$server_pipe" ]; then
-	echo "Error: server is not running."
-	exit 2
-fi 
+checkserver
 
 client_id=$1
 client_pipe="${client_id}.pipe"
@@ -100,7 +105,8 @@ while true; do
 	esac
 	message="${req_command} $client_id ${command_arr[@]}"
 #	echo "[SEND]$message"
-	echo $message > $server_pipe
+	checkserver
+	echo "$message" > $server_pipe
 #	echo "[SENT]$message"
 
 	# Read response from server pipe

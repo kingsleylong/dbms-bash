@@ -1,9 +1,22 @@
 #!/bin/bash
 
 cleanup() {
-	if [ ! -e $server_pipe ]; then
+	if [ -e $server_pipe ]; then
   	      rm $server_pipe
 	fi
+}
+
+# gracefully exit server
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+
+function ctrl_c() {
+        if [ -e $server_pipe ]; then
+                cleanup
+                exit 0
+        else
+                exit 99
+        fi
 }
 server_pipe="server.pipe"
 if [ ! -e $server_pipe ]; then
