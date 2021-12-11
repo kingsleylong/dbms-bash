@@ -13,7 +13,7 @@ database="$1"
 
 # try to increment semaphore
 ./P.sh $database
-# got semaphore, enter critical section
+# semaphore increamented, enter critical section
 # Check if database exists
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
@@ -51,6 +51,5 @@ fi
 echo 'start_result'
 cut -d',' -f"$columns" "$database/$table"
 echo 'end_result'
-echo $(date)': Finish select'"$database/$table\n" >> select.log
 ./V.sh $database
 exit 0

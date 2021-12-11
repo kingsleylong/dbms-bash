@@ -25,7 +25,7 @@ fi
 while true; do
 	# read commands into an array
 	read -a command_arr < $server_pipe
-	# echo "[DEBUG] command: "${command_arr[@]}
+	#echo "[DEBUG] command: ${command_arr[@]}, arg count: ${#command_arr[@]}"
 	# get the first
 	req_command=${command_arr[0]}
 	client_id=${command_arr[1]}
@@ -34,7 +34,7 @@ while true; do
 	# for this command which we could simply pass into the script later
 	unset 'command_arr[0]'
 	unset 'command_arr[1]'
-	# echo "[DEBUG] arguments: "${command_arr[@]}
+	echo "[DEBUG] req: ${req_command}, arguments: "${command_arr[@]}
 	case "${req_command}" in
 		create_database)
 			./create_database.sh "${command_arr[@]}" > $client_pipe &
@@ -58,8 +58,9 @@ while true; do
 			exit 0
 			;;
 	 	*)
+			echo "[DEBUG]: bad request"
 			echo "Error: bad request" > $client_pipe
-			cleanup
-			exit 1
+			echo "[DEBUG]: bad request"
+			continue
 	esac
 done
