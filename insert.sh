@@ -15,7 +15,7 @@ database="$1"
 
 # try to increment semaphore
 ./P.sh $database
-# got semaphore, enter critical section
+# got lock, enter critical section
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
 	./V.sh "$database"
