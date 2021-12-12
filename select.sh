@@ -35,10 +35,11 @@ schema=$(head -n 1 "$database/$table")
 if [ -z "$columns" ]; then
 	columns="1-"
 else
-	# split the sepecified column numbers to an array
-	columns_list=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
-	# for each column number in the array, test if the corresponding column exists in the schema
-	for col in ${columns_list[@]}; do
+	# split the sepecified column names to an array
+	column_names=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
+	echo "[DEBUG]column names: ${column_names[@]}, size:${#column_names[@]}"
+	# for each column name in the array, test if it exists in the schema
+	for col in ${column_names[@]}; do
 		col_check=$(echo "$schema" | cut -d',' -f$col 2> /dev/null | wc -w)
 		if [ $(( col_check )) -eq 0 ]; then
 			echo "Error: column does not exist"
