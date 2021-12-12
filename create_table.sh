@@ -9,7 +9,7 @@ elif [ $# -gt 3 ]; then
 	exit 1
 fi
 
-base=$(pwd)
+base="$(pwd)"
 
 # Check if database exists
 database="$1"
@@ -19,7 +19,7 @@ database="$1"
 # got semaphore, enter critical section
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
-	./V.sh $database
+	./V.sh "$database"
 	exit 2
 fi
 
@@ -27,7 +27,7 @@ fi
 table="$2"
 if [ -e "$database/$table" ]; then
 	echo "Error: table already exists"
-	./V.sh $database
+	./V.sh "$database"
 	exit 3
 fi
 
@@ -36,6 +36,6 @@ columns="$3"
 echo "$columns" > "$database/$table"
 echo "OK: table created"
 # decrement semaphore
-./V.sh $database
+./V.sh "$database"
 exit 0
 
