@@ -36,13 +36,23 @@ if [ -z "$columns" ]; then
 	columns="1-"
 else
 	# split the sepecified column names to an array
-	column_names=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
-	echo "[DEBUG]column names: ${column_names[@]}, size:${#column_names[@]}"
+	select_columns=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
+	echo "[DEBUG]select columns: ${select_columns[@]}, size:${#select_columns[@]}"
+	schema_columns=($(echo "$schema" | cut -d',' -f1- --output-delimiter=" "))
+	echo "[DEBUG]schema columns: ${schema_columns[@]}, size:${#schema_columns[@]}"
 	# for each column name in the array, test if it exists in the schema
-	for col in ${column_names[@]}; do
-		col_check=$(echo "$schema" | cut -d',' -f$col 2> /dev/null | wc -w)
-		if [ $(( col_check )) -eq 0 ]; then
-			echo "Error: column does not exist"
+	for col in ${select_columns[@]}; do
+		valid=false
+		for scol in ${schema_columns[@]}; do
+			echo "[DEBUG]col=$col, scol=$scol"
+			if [ "${col}" = "${scol}" ]; then
+				echo "[DEBUG]equal: col=$col, scol=$scol"
+				valid=true
+				break
+			fi
+		done
+		if [ $valid = false ]; then
+			echo "Error: column ${col} does not exist"
 			./V.sh "$database"
 			exit 4
 		fi
