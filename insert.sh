@@ -8,7 +8,7 @@ elif [ $# -gt 3 ]; then
         exit 1
 fi
 
-base=$(pwd)
+base="$(pwd)"
 
 # Check if database exists
 database="$1"
@@ -18,7 +18,7 @@ database="$1"
 # got semaphore, enter critical section
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
-	./V.sh $database
+	./V.sh "$database"
 	exit 2
 fi
 
@@ -26,7 +26,7 @@ fi
 table="$2"
 if [ ! -e "$database/$table" ]; then
 	echo "Error: table does not exist"
-	./V.sh $database
+	./V.sh "$database"
 	exit 3
 fi
 
@@ -40,10 +40,10 @@ tuple_cols=$(echo "$tuple" | grep -o ',' | wc -l)
 if [ $table_cols = $tuple_cols ]; then
 	echo "$tuple" >> "$database/$table"
 	echo "OK: tuple inserted"
-	./V.sh $database
+	./V.sh "$database"
 	exit 0
 else
 	echo "Error: number of columns in tuple does not match schema"
-	./V.sh $database
+	./V.sh "$database"
 	exit 4
 fi

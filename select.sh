@@ -8,16 +8,16 @@ elif [ $# -gt 3 ]; then
         exit 1
 fi
 
-base=$(pwd)
+base="$(pwd)"
 database="$1"
 
 # try to increment semaphore
-./P.sh $database
+./P.sh "$database"
 # semaphore increamented, enter critical section
 # Check if database exists
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
-	./V.sh $database
+	./V.sh "$database"
 	exit 2
 fi
 
@@ -25,7 +25,7 @@ fi
 table="$2"
 if [ ! -e "$database/$table" ]; then
 	echo "Error: table does not exist"
-	./V.sh $database
+	./V.sh "$database"
 	exit 3
 fi
 
@@ -42,7 +42,7 @@ else
 		col_check=$(echo "$schema" | cut -d',' -f$col 2> /dev/null | wc -w)
 		if [ $(( col_check )) -eq 0 ]; then
 			echo "Error: column does not exist"
-			./V.sh $database
+			./V.sh "$database"
 			exit 4
 		fi
 	done
@@ -51,5 +51,5 @@ fi
 echo 'start_result'
 cut -d',' -f"$columns" "$database/$table"
 echo 'end_result'
-./V.sh $database
+./V.sh "$database"
 exit 0
