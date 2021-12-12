@@ -72,7 +72,7 @@ while true; do
 	# remove the first element which is the command, so the rest of array would be parameters
 	unset 'command_arr[0]'
 
-	echo "[DEBUG] command: "${command_arr[@]}", command count:${#command_arr[@]}"
+	# echo "[DEBUG] command: "${command_arr[@]}", command count:${#command_arr[@]}"
 	# support exit command in the client
 	case "${req_command}" in
 		exit)
@@ -81,7 +81,7 @@ while true; do
 	esac
 	message="${req_command} $client_id ${command_arr[@]}"
 	check_server
-	echo "[DEBUG] message: $message"
+	# echo "[DEBUG] message: $message"
 	echo "$message" > "$server_pipe"
 
 	# Read response from server pipe
