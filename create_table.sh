@@ -16,7 +16,7 @@ database="$1"
 
 # try to increment semaphore
 ./P.sh $database
-# got semaphore, enter critical section
+# got lock, enter critical section
 if [ ! -e "$database" ]; then
 	echo "Error: DB does not exist"
 	./V.sh "$database"
@@ -35,7 +35,7 @@ fi
 columns="$3"
 echo "$columns" > "$database/$table"
 echo "OK: table created"
-# decrement semaphore
+# release lock: decrement semaphore
 ./V.sh "$database"
 exit 0
 

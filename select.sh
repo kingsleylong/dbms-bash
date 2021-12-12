@@ -29,27 +29,52 @@ if [ ! -e "$database/$table" ]; then
 	exit 3
 fi
 
-# Check if columns are provided, if empty then replace with all columns (the fields used in cut command)
+# Check if columns are provided, if empty then replace with all columns of the schema 
 columns="$3"
 schema=$(head -n 1 "$database/$table")
+select_column_idx=()
+# if $columns are not specified, use the columns from the schema
 if [ -z "$columns" ]; then
-	columns="1-"
-else
-	# split the sepecified column numbers to an array
-	columns_list=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
-	# for each column number in the array, test if the corresponding column exists in the schema
-	for col in ${columns_list[@]}; do
-		col_check=$(echo "$schema" | cut -d',' -f$col 2> /dev/null | wc -w)
-		if [ $(( col_check )) -eq 0 ]; then
-			echo "Error: column does not exist"
-			./V.sh "$database"
-			exit 4
-		fi
-	done
+	columns="${schema}"
 fi
 
+# split the sepecified column names and schema to an array, for error checking
+# and map the column names to column indexes
+select_columns=($(echo "$columns" | cut -d',' -f1- --output-delimiter=" "))
+schema_columns=($(echo "$schema" | cut -d',' -f1- --output-delimiter=" "))
+
+# for each column name in the array, test if it exists in the schema
+for col in ${select_columns[@]}; do
+	valid=false
+	for (( i=0; i<${#schema_columns[@]}; i++ )); do
+		scol=${schema_columns[$i]}
+		if [ "${col}" = "${scol}" ]; then
+			valid=true
+			select_column_idx+=($i)
+			break
+		fi
+	done
+	if [ $valid = false ]; then
+		echo "Error: column ${col} does not exist"
+		./V.sh "$database"
+		exit 4
+	fi
+done
+
 echo 'start_result'
-cut -d',' -f"$columns" "$database/$table"
+while read row; do
+	select_col_cnt=${#select_column_idx[@]}
+	for (( i=0; i<${select_col_cnt}; i++ )); do
+		# -n and -z options are used to avoid new line
+		echo -n $row | cut -d',' -f"$(( ${select_column_idx[$i]} + 1 ))" -z
+		if [ $i -lt $(( $select_col_cnt - 1 )) ]; then
+			echo -n ","
+		else
+			# the last column don't need a ',' suffix
+			echo ""
+		fi
+	done
+done < "$database/$table"
 echo 'end_result'
 ./V.sh "$database"
 exit 0
